@@ -11,6 +11,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,10 +25,12 @@ public class LoanApplicationController {
     private final LoanApplicationService loanApplicationService;
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('CUSTOMER', 'ADMIN')")
     @Operation(summary = "Khởi tạo hồ sơ vay tín chấp", description = "Khách hàng nộp yêu cầu vay vốn tín chấp với số tiền đề nghị cụ thể.")
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "Tạo hồ sơ vay thành công (PENDING)"),
-            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Dữ liệu đầu vào không hợp lệ")
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Dữ liệu đầu vào không hợp lệ"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Chưa xác thực (Unauthorized)")
     })
     public ResponseEntity<ApiResponse<LoanApplicationResponse>> createLoanApplication(
             @Valid @RequestBody CreateLoanRequest request) {
@@ -39,9 +42,11 @@ public class LoanApplicationController {
     }
 
     @PutMapping("/{id}/approve")
-    @Operation(summary = "Duyệt hồ sơ vay tín chấp (Admin)", description = "Tự động kiểm tra Điểm tín dụng (< 600) hoặc Trạng thái nợ xấu (= true). Nếu vi phạm sẽ ném lỗi HTTP 406 Not Acceptable.")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Duyệt hồ sơ vay tín chấp (Chỉ dành cho ADMIN)", description = "Tự động kiểm tra Điểm tín dụng (< 600) hoặc Trạng thái nợ xấu (= true). Nếu vi phạm sẽ ném lỗi HTTP 406 Not Acceptable. Yêu cầu Role ADMIN.")
     @ApiResponses(value = {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Duyệt hồ sơ vay thành công (APPROVED)"),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "Không có quyền thực hiện (Forbidden - Cần Role ADMIN)"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "406", description = "Từ chối khoản vay: Điểm tín dụng không đủ hoặc có Nợ xấu"),
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Không tìm thấy hồ sơ vay với ID tương ứng")
     })
@@ -54,6 +59,7 @@ public class LoanApplicationController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('CUSTOMER', 'ADMIN')")
     @Operation(summary = "Xem chi tiết hồ sơ vay", description = "Truy vấn thông tin chi tiết của một hồ sơ vay theo ID.")
     public ResponseEntity<ApiResponse<LoanApplicationResponse>> getLoanApplicationById(
             @PathVariable("id") Long id) {
@@ -64,7 +70,8 @@ public class LoanApplicationController {
     }
 
     @GetMapping
-    @Operation(summary = "Danh sách hồ sơ vay", description = "Lấy danh sách toàn bộ hồ sơ vay hoặc lọc theo Customer ID.")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Danh sách hồ sơ vay (Chỉ dành cho ADMIN)", description = "Lấy danh sách toàn bộ hồ sơ vay hoặc lọc theo Customer ID. Yêu cầu Role ADMIN.")
     public ResponseEntity<ApiResponse<List<LoanApplicationResponse>>> getAllLoanApplications(
             @RequestParam(value = "customerId", required = false) Long customerId) {
         List<LoanApplicationResponse> responses = loanApplicationService.getAllLoanApplications(customerId);

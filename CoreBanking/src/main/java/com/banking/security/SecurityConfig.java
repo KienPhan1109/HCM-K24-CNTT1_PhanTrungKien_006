@@ -20,8 +20,11 @@ import com.banking.security.jwt.JwtAuthenticationFilter;
 
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
@@ -37,7 +40,6 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/api/v1/auth/**",
-                                "/api/v1/loans/**",
                                 "/h2-console/**",
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
