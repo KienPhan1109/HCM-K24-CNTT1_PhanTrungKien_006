@@ -103,6 +103,15 @@ erDiagram
 | `created_at` | `TIMESTAMP` | NOT NULL, DEFAULT CURRENT_TIMESTAMP | Thời điểm nộp hồ sơ |
 | `updated_at` | `TIMESTAMP` | NULL | Thời điểm duyệt / từ chối hồ sơ |
 
+#### Bảng 3: Danh mục Chỉ mục CSDL (Database Indexing Strategy)
+| Tên Index | Bảng CSDL | Các trường đánh Index | Kiểu Index | Mục đích tối ưu hóa |
+| :--- | :--- | :--- | :--- | :--- |
+| `idx_customer_credit_bad_debt` | `customers` | `credit_score, bad_debt_status` | Composite Index | Tăng tốc độ truy vấn thuật toán kiểm tra Credit Score < 600 & Bad Debt |
+| `idx_customer_email` | `customers` | `email` | B-Tree Index | Tăng tốc độ xác thực đăng nhập & tra cứu khách hàng |
+| `idx_loan_customer_status` | `loan_applications` | `customer_id, status` | Composite Index | Tối ưu hóa truy vấn lịch sử khoản vay theo Customer và Trạng thái |
+| `idx_loan_status_created` | `loan_applications` | `status, created_at` | Composite Index | Tối ưu hóa báo cáo danh sách khoản vay chờ duyệt cho Admin |
+
+
 ---
 
 ## 3. Thuật toán Kiểm tra Điều kiện Duyệt Vay (Pseudo-code Algorithm)

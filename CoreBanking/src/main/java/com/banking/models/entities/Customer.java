@@ -7,7 +7,10 @@ import lombok.*;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "customers")
+@Table(name = "customers", indexes = {
+        @Index(name = "idx_customer_credit_bad_debt", columnList = "credit_score, bad_debt_status"),
+        @Index(name = "idx_customer_email", columnList = "email")
+})
 @Getter
 @Setter
 @NoArgsConstructor
