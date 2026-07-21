@@ -193,4 +193,18 @@ class LoanApplicationServiceTest {
         assertEquals(400, exception.getCode());
         verify(loanApplicationRepository, never()).save(any());
     }
+
+    @Test
+    @DisplayName("Ném ObjectOptimisticLockingFailureException khi phát sinh tranh chấp ghi đồng thời (Concurrency)")
+    void approveLoanApplication_OptimisticLockingFailure_ShouldThrowException() {
+        when(loanApplicationRepository.findById(100L)).thenReturn(Optional.of(pendingLoan));
+        when(loanApplicationRepository.save(any(LoanApplication.class)))
+                .thenThrow(new org.springframework.orm.ObjectOptimisticLockingFailureException("LoanApplication", 100L));
+
+        assertThrows(
+                org.springframework.orm.ObjectOptimisticLockingFailureException.class,
+                () -> loanApplicationService.approveLoanApplication(100L)
+        );
+    }
 }
+

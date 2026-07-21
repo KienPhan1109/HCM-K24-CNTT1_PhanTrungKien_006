@@ -211,6 +211,9 @@ Hệ thống tuân thủ nghiêm ngặt quy định trả về HTTP Status Codes
 3. **`HTTP 404 (Not Found)`**:
    - Trả về khi không tìm thấy hồ sơ vay hoặc khách hàng tương ứng (`LoanApplicationNotFoundException`).
 
+4. **`HTTP 409 (Conflict)`**:
+   - Trả về khi phát sinh tranh chấp ghi đồng thời (Race Condition) khi hai Admin bấm duyệt khoản vay tại cùng một thời điểm (`ObjectOptimisticLockingFailureException`).
+
 ---
 
 ## 6. Kế Hoạch Phân Chẻ Nhiệm Vụ & Phân Công Chi Tiết (Task Breakdown & Implementation Roadmap)
